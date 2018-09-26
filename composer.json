@@ -1,12 +1,12 @@
 {
-    "name": "spatie/array-to-xml",
+    "name": "ashenwolf/array-to-xml",
     "description": "Convert an array to xml",
     "keywords": [
         "convert",
         "array",
         "xml"
     ],
-    "homepage": "https://github.com/spatie/array-to-xml",
+    "homepage": "https://github.com/ashenwolf/array-to-xml",
     "license": "MIT",
     "authors": [
         {
