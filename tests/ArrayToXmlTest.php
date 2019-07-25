@@ -11,7 +11,7 @@ class ArrayToXmlTest extends TestCase
     /** @test array */
     protected $testArray = [];
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->testArray = [
             'Good guy' => [
@@ -107,6 +107,14 @@ class ArrayToXmlTest extends TestCase
     }
 
     /** @test */
+    public function it_can_handle_zero_values_in_beginning_of_basic_collection()
+    {
+        $this->assertMatchesXmlSnapshot(ArrayToXml::convert([
+            'user' => ['0', '1', '0'],
+        ]));
+    }
+
+    /** @test */
     public function it_accepts_an_xml_encoding_type()
     {
         $this->assertMatchesXmlSnapshot(ArrayToXml::convert([], '', false, 'UTF-8'));
@@ -136,28 +144,15 @@ class ArrayToXmlTest extends TestCase
     }
 
     /** @test */
-    public function it_will_raise_an_exception_when_value_contains_mixed_sequential_array()
-    {
-        $this->expectException('DOMException');
-
-        ArrayToXml::convert([
-            'user' => [
-                [
-                    'name' => 'een',
-                    'age' => 10,
-                ],
-                'twee' => [
-                    'name' => 'twee',
-                    'age' => 12,
-                ],
-            ],
-        ]);
-    }
-
-    /** @test */
     public function it_can_handle_values_with_special_characters()
     {
         $this->assertMatchesXmlSnapshot(ArrayToXml::convert(['name' => 'this & that']));
+    }
+
+    /** @test */
+    public function it_can_handle_values_with_special_control_characters()
+    {
+        $this->assertMatchesXmlSnapshot(ArrayToXml::convert(['name' => "i want tothis and \x03 that"]));
     }
 
     /**
@@ -305,5 +300,120 @@ class ArrayToXmlTest extends TestCase
                 ],
             ],
         ]));
+    }
+
+    /** @test */
+    public function it_can_convert_array_to_dom()
+    {
+        $resultDom = (new ArrayToXml($this->testArray))->toDom();
+
+        $this->assertSame('Luke Skywalker', $resultDom->getElementsByTagName('name')->item(0)->nodeValue);
+        $this->assertSame('Sauron', $resultDom->getElementsByTagName('name')->item(1)->nodeValue);
+        $this->assertSame('Lightsaber', $resultDom->getElementsByTagName('weapon')->item(0)->nodeValue);
+        $this->assertSame('Evil Eye', $resultDom->getElementsByTagName('weapon')->item(1)->nodeValue);
+    }
+
+    /** @test */
+    public function it_can_handle_values_set_as_mixed()
+    {
+        $this->assertMatchesSnapshot(ArrayToXml::convert([
+            'movie' => [
+                [
+                    'title' => [
+                        '@attributes' => ['category' => 'SF'],
+                        '_mixed' => 'STAR WARS <xref ref-type="fig" rid="f1">Figure 1</xref>',
+                    ],
+                ],
+                [
+                    'title' => [
+                        '@attributes' => ['category' => 'Action'],
+                        '_mixed' => 'ROBOCOP <xref ref-type="fig" rid="f2">Figure 2</xref>',
+                    ],
+                ],
+            ],
+        ]));
+    }
+
+    /** @test */
+    public function and_mixed_values_can_also_be_set_in_simplexmlelement_style()
+    {
+        $this->assertMatchesSnapshot(ArrayToXml::convert([
+            'movie' => [
+                [
+                    'title' => [
+                        '@attributes' => ['category' => 'SF'],
+                        '@mixed' => 'STAR WARS <xref ref-type="fig" rid="f1">Figure 1</xref>',
+                    ],
+                ],
+                [
+                    'title' => [
+                        '@attributes' => ['category' => 'Action'],
+                        '@mixed' => 'ROBOCOP <xref ref-type="fig" rid="f2">Figure 2</xref>',
+                    ],
+                ],
+            ],
+        ]));
+    }
+
+    /** @test */
+    public function it_can_handle_numeric_keys()
+    {
+        $this->assertMatchesSnapshot(ArrayToXml::convert([
+            '__numeric' => [
+                16 => [
+                    'parent' => 'aaa',
+                    'numLinks' => 3,
+                    'child' => [
+                        16 => [
+                            'parent' => 'abc',
+                            'numLinks' => 3,
+                        ],
+                    ],
+                ],
+                17 => [
+                    'parent' => 'bb',
+                    'numLinks' => 3,
+                    'child' => [
+                        16 => [
+                            'parent' => 'abb',
+                            'numLinks' => 3,
+                            'child' => [
+                                16 => [
+                                    'parent' => 'abc',
+                                    'numLinks' => 3,
+                                ],
+                            ],
+                        ],
+                        17 => [
+                            'parent' => 'acb',
+                            'numLinks' => 3,
+                        ],
+                    ],
+                ],
+            ],
+        ]));
+    }
+
+    /** @test */
+    public function setting_invalid_properties_will_result_in_an_exception()
+    {
+        $this->expectException(\Exception::class);
+        $xml2Array = new ArrayToXml($this->testArray);
+
+        $xml2Array->setDomProperties(['foo' => 'bar']);
+    }
+
+    /** @test */
+    public function it_can_set_dom_properties()
+    {
+        $xml2Array = new ArrayToXml($this->testArray);
+        $xml2Array->setDomProperties([
+            'formatOutput' => true,
+            'version' => '1234567',
+        ]);
+
+        $dom = $xml2Array->toDom();
+        $this->assertTrue($dom->formatOutput);
+        $this->assertEquals('1234567', $dom->version);
     }
 }

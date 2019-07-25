@@ -51,11 +51,15 @@ After running this piece of code `$result` will contain:
 </root>
 ```
 
+### Setting the name of the root element
+
 Optionally you can set the name of the rootElement by passing it as the second argument. If you don't specify
 this argument (or set it to an empty string) "root" will be used.
 ```
 $result = ArrayToXml::convert($array, 'customrootname');
 ```
+
+### Handling key names
 
 By default all spaces in the key names of your array will be converted to underscores. If you want to opt out of
 this behaviour you can set the third argument to false. We'll leave all keynames alone.
@@ -63,7 +67,9 @@ this behaviour you can set the third argument to false. We'll leave all keynames
 $result = ArrayToXml::convert($array, 'customrootname', false);
 ```
 
-You can use a key named `_attributes` to add attributes to a node.
+### Adding attributes
+
+You can use a key named `_attributes` to add attributes to a node, and `_value` to specify the value.
 
 ```php
 $array = [
@@ -75,6 +81,10 @@ $array = [
     'Bad guy' => [
         'name' => 'Sauron',
         'weapon' => 'Evil Eye'
+    ]
+    'The survivor' => [
+        '_attributes' => ['house'=>'Hogwarts'],
+        '_value' => 'Harry Potter'
     ]
 ];
 
@@ -94,8 +104,13 @@ This code will result in:
         <name>Sauron</name>
         <weapon>Evil Eye</weapon>
     </Bad_guy>
+    <The_survivor house="Hogwarts">
+        Harry Potter
+    </The_survivor>
 </root>
 ```
+
+### Using reserved characters
 
 It is also possible to wrap the value of a node into a CDATA section. This allows you to use reserved characters.
 
@@ -134,6 +149,8 @@ This code will result in:
 
 If your input contains something that cannot be parsed a `DOMException` will be thrown.
 
+### Adding attributes to the root element
+
 To add attributes to the root element provide an array with an `_attributes` key as the second argument. 
 The root element name can then be set using the `rootElementName` key.
 
@@ -143,7 +160,118 @@ $result = ArrayToXml::convert($array, [
     '_attributes' => [
         'xmlns' => 'https://github.com/spatie/array-to-xml',
     ],
-]);
+], true, 'UTF-8');
+```
+
+### Using a multi-dimensional array
+
+Use a multi-dimensional array to create a collection of elements.
+```php
+$array = [
+    'Good guys' => [
+        'Guy' => [
+            ['name' => 'Luke Skywalker', 'weapon' => 'Lightsaber'],
+            ['name' => 'Captain America', 'weapon' => 'Shield'],
+        ],
+    ],
+    'Bad guys' => [
+        'Guy' => [
+            ['name' => 'Sauron', 'weapon' => 'Evil Eye'],
+            ['name' => 'Darth Vader', 'weapon' => 'Lightsaber'],
+        ],
+    ],
+];
+```
+
+This will result in:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<helloyouluckypeople xmlns="https://github.com/spatie/array-to-xml">
+    <Good_guys>
+        <Guy>
+            <name>Luke Skywalker</name>
+            <weapon>Lightsaber</weapon>
+        </Guy>
+        <Guy>
+            <name>Captain America</name>
+            <weapon>Shield</weapon>
+        </Guy>
+    </Good_guys>
+    <Bad_guys>
+        <Guy>
+            <name>Sauron</name>
+            <weapon>Evil Eye</weapon>
+        </Guy>
+        <Guy>
+            <name>Darth Vader</name>
+            <weapon>Lightsaber</weapon>
+        </Guy>
+    </Bad_guys>
+</helloyouluckypeople>
+```
+
+### Handling numeric keys
+
+The package can also can handle numeric keys:
+
+```php
+$array = [
+    100 => [
+        'name' => 'Vladimir',
+        'nickname' => 'greeflas',
+    ],
+    200 => [
+        'name' => 'Marina',
+        'nickname' => 'estacet',
+    ],
+];
+
+$result = ArrayToXml::convert(['__numeric' => $array]);
+```
+
+This will result in:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <numeric_100>
+        <name>Vladimir</name>
+        <nickname>greeflas</nickname>
+    </numeric_100>
+    <numeric_200>
+        <name>Marina</name>
+        <nickname>estacet</nickname>
+    </numeric_200>
+</root>
+```
+
+You can change key prefix with setter method called `setNumericTagNamePrefix()`.
+
+### Setting DOMDocument properties
+
+To set properties of the internal DOMDocument object just pass an array consisting of keys and values. For a full list of valid properties consult https://www.php.net/manual/en/class.domdocument.php.
+
+You can use the constructor to set DOMDocument properties.
+
+```php
+$result = ArrayToXml::convert(
+   $array, 
+   $rootElement, 
+   $replaceSpacesByUnderScoresInKeyNames, 
+   $xmlEncoding, 
+   $xmlVersion, 
+   ['formatOutput' => true]
+);
+
+```
+
+Alternatively you can use  `setDomProperties`
+
+```php
+$arrayToXml = new ArrayToXml($array);
+$arrayToXml->setDomProperties(['formatOutput' => true]);
+$result = $arrayToXml->toXml();
 ```
 
 ## Testing
