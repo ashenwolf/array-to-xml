@@ -1,12 +1,12 @@
 {
-    "name": "ashenwolf/array-to-xml",
+    "name": "spatie/array-to-xml",
     "description": "Convert an array to xml",
     "keywords": [
         "convert",
         "array",
         "xml"
     ],
-    "homepage": "https://github.com/ashenwolf/array-to-xml",
+    "homepage": "https://github.com/spatie/array-to-xml",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php" : "^5.6 || ^7.0"
+        "php" : "^7.0"
     },
     "require-dev": {
         "phpunit/phpunit" : "^6.3",
