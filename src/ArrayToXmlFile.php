@@ -107,12 +107,14 @@ class ArrayToXmlFile
     {
         $sequential = $this->isArrayAllKeySequential($value);
 
-        if (! is_array($value)) {
+        if (!is_array($value)) {
             $value = $value;
 
-            $value = $this->removeControlCharacters($value);
+            if (!is_null($value)) {
+                $value = $this->removeControlCharacters($value);
 
-            $this->writer->text($value);
+                $this->writer->text($value);    
+            }
 
             return;
         }
@@ -240,7 +242,7 @@ class ArrayToXmlFile
         try {
             $result = $this->writer->startElement($name);
         } catch (exception $e) {
-            throw new DOMException($e->getMessage());
+            throw new DOMException("'{$name}': {$e->getMessage()}");
         }
         if (!$result)
             throw new DOMException(error_get_last());
