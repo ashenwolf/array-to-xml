@@ -1,18 +1,26 @@
 {
-    "name": "spatie/array-to-xml",
-    "description": "Convert an array to xml",
+    "name": "ashenwolf/array-to-xmlfile",
+    "description": "Convert an array to xml file (array-to-xml compatible but uses XmlWriter)",
     "keywords": [
         "convert",
         "array",
-        "xml"
+        "xml",
+        "xmlwriter",
+        "file"
     ],
-    "homepage": "https://github.com/spatie/array-to-xml",
+    "homepage": "https://github.com/ashenwolf/array-to-xml",
     "license": "MIT",
     "authors": [
         {
             "name": "Freek Van der Herten",
             "email": "freek@spatie.be",
             "homepage": "https://murze.be",
+            "role": "Developer"
+        },
+        {
+            "name": "Sergii Gulenok",
+            "email": "sergii.gulenok@gmail.com",
+            "homepage": "https://okami.tech",
             "role": "Developer"
         }
     ],
@@ -27,12 +35,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Spatie\\ArrayToXml\\": "src"
+            "Ashenwolf\\ArrayToXml\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\ArrayToXml\\Test\\": "tests"
+            "Ashenwolf\\ArrayToXml\\Test\\": "tests"
         }
     }
 }
